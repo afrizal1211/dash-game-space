@@ -54,10 +54,9 @@ class GameProfile {
       other is GameProfile &&
       other.package == package &&
       other.user == user &&
-      other.cpuMode == cpuMode &&
       other.gpuMode == gpuMode &&
       other.touchMode == touchMode;
 
   @override
-  int get hashCode => Object.hash(package, user, cpuMode, gpuMode, touchMode);
+  int get hashCode => Object.hash(package, user, gpuMode, touchMode);
 }
