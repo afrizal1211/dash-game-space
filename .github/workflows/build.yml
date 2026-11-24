@@ -27,6 +27,41 @@ jobs:
           mkdir -p android/app/src/main/kotlin/com/nrsqxw/dashgamespace
           cp config/BridgeChannel.kt android/app/src/main/kotlin/com/nrsqxw/dashgamespace/BridgeChannel.kt
           rm -f test/widget_test.dart
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.DASH_RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASS: ${{ secrets.DASH_RELEASE_KEY_PASS }}
+          KEYSTORE_ALIAS: ${{ secrets.DASH_RELEASE_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          [ -n "$KEYSTORE_B64" ] || { echo "DASH_RELEASE_KEYSTORE_BASE64 is required" >&2; exit 1; }
+          [ -n "$KEYSTORE_PASS" ] || { echo "DASH_RELEASE_KEY_PASS is required" >&2; exit 1; }
+          keystore="$RUNNER_TEMP/dash-game-space-release.p12"
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keystore"
+          chmod 600 "$keystore"
+          alias_name="${KEYSTORE_ALIAS:-dash-essential}"
+          {
+            echo "DASH_GS_KEYSTORE=$keystore"
+            echo "DASH_GS_KEYSTORE_PASS=$KEYSTORE_PASS"
+            echo "DASH_GS_KEY_ALIAS=$alias_name"
+          } >> "$GITHUB_ENV"
+          cat >> android/app/build.gradle <<'GRADLE'
+android {
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("DASH_GS_KEYSTORE"))
+            storePassword System.getenv("DASH_GS_KEYSTORE_PASS")
+            keyAlias System.getenv("DASH_GS_KEY_ALIAS")
+            keyPassword System.getenv("DASH_GS_KEYSTORE_PASS")
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+GRADLE
       - name: Flutter tests
         run: flutter test
       - name: Build APK
