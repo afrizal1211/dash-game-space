@@ -55,6 +55,9 @@ jobs:
           fi
           {
             printf '## Dash Game Space %s\n\n' "$tag"
+            printf 'Game Space with Dash Essential integration.\n\n'
+            printf '[Read the README](https://github.com/afrizal1211/dash-game-space#readme)\n\n'
+            printf '### Changelog\n\n'
             printf '%s\n\n' "$notes"
             printf '### How to use\n\n'
             printf 'Install Dash Essential first. Both apps must share the same signing key.\n'
