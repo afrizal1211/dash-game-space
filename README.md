@@ -50,3 +50,7 @@ builds the release APK.
 ## Author
 
 [afrizal1211](https://github.com/afrizal1211)
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
