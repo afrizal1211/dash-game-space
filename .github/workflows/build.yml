@@ -18,6 +18,13 @@ jobs:
           channel: stable
           flutter-version: 3.44.8
           cache: true
+      - name: Generate Android scaffold
+        run: flutter create --platforms=android --project-name dash_game_space --org com.nrsqxw .
+      - name: Apply Dash bridge configuration
+        run: |
+          cp config/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          mkdir -p android/app/src/main/kotlin/com/nrsqxw/dashgamespace
+          cp config/BridgeChannel.kt android/app/src/main/kotlin/com/nrsqxw/dashgamespace/BridgeChannel.kt
       - name: Flutter tests
         run: flutter test
       - name: Build APK

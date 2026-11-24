@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'bridge/dash_bridge.dart';
+import 'screens/home_screen.dart';
+import 'theme.dart';
 
 void main() => runApp(const GameSpaceApp());
 
@@ -32,26 +34,14 @@ class _GameSpaceAppState extends State<GameSpaceApp> {
 
   @override
   Widget build(BuildContext context) {
-    final bool dashReady = _capabilities.isNotEmpty;
     return MaterialApp(
       title: 'Dash Game Space',
-      theme: ThemeData.dark(useMaterial3: true),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Dash Game Space')),
-        body: Center(
-          child: !_checked
-              ? const CircularProgressIndicator()
-              : dashReady
-                  ? Text('Dash connected — ${_capabilities.length} capabilities')
-                  : const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text(
-                        'Dash Essential unavailable. Local-only basic mode.',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-        ),
-      ),
+      theme: GameSpaceTheme.dark(),
+      home: _checked
+          ? const HomeScreen()
+          : const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
     );
   }
 }
