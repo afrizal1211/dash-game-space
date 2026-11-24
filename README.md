@@ -51,6 +51,28 @@ builds the release APK.
 
 [afrizal1211](https://github.com/afrizal1211)
 
+## Troubleshooting
+
+**"Dash Essential unavailable. Local-only basic mode."**
+
+Two conditions are required for the bridge to work:
+
+1. Dash Essential must include the Game Space bridge. That code is on the
+   `feature-dash-game-space` branch of the Dash repository; released builds
+   before that branch do not contain the receiver.
+2. Both APKs must be signed with the same release key. The bridge uses a
+   `signature` permission; a Game Space APK signed with a different key is
+   rejected even when the receiver exists.
+
+Check the signing fingerprints with:
+
+```sh
+keytool -printcert -jarfile Dash-Essential.apk
+keytool -printcert -jarfile app-release.apk
+```
+
+The certificate SHA-256 values must match.
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
