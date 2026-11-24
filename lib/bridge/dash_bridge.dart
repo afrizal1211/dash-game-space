@@ -48,8 +48,7 @@ class DashBridge {
     try {
       final Object? decoded = jsonDecode(reply.result!);
       if (decoded is! Map<String, dynamic>) return <String>{};
-      final Object? list = decoded['capabilities'] ?? decoded['commands'];
-      if (list is List) return list.whereType<String>().toSet();
+      return decoded.keys.toSet();
     } catch (_) {
       // A malformed capability list is treated as no capabilities.
     }

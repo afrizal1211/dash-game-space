@@ -37,8 +37,7 @@ class GameSpaceBackup {
 
   String encode() => jsonEncode(toJson());
 
-  static String? importCommand({required bool confirm}) =>
-      confirm ? 'ACTION import.apply confirm' : null;
+  static String importCommand(String token) => 'ACTION import.apply $token';
 
   @override
   bool operator ==(Object other) =>

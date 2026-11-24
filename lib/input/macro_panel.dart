@@ -8,10 +8,13 @@ class MacroPanel extends StatelessWidget {
   final String package;
 
   Future<void> _arm() {
-    return DashBridge.instance.send(
-      '{"package":"$package","action":"tap","x":0,"y":0}',
-    );
+    final String json =
+        '{"package":"$package","action":"tap","x":10,"y":10}';
+    return DashBridge.instance.send('ACTION input.inject $json');
   }
+
+  Future<void> _release() =>
+      DashBridge.instance.send('ACTION game.session.release');
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,10 @@ class MacroPanel extends StatelessWidget {
       content: Text('Foreground: $package'),
       actions: <Widget>[
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            _release();
+            Navigator.of(context).pop();
+          },
           child: const Text('Cancel'),
         ),
         FilledButton(

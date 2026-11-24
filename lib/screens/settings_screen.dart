@@ -24,9 +24,12 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             title: const Text('Import Dash backup'),
-            onTap: () {
-              final String? command = GameSpaceBackup.importCommand(confirm: true);
-              if (command != null) DashBridge.instance.send(command);
+            onTap: () async {
+              final BridgeResult token =
+                  await DashBridge.instance.send('GET game.confirm import');
+              if (!token.ok || token.result == null) return;
+              await DashBridge.instance
+                  .send(GameSpaceBackup.importCommand(token.result!));
             },
           ),
         ],

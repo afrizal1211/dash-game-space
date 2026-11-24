@@ -37,11 +37,21 @@ class _GameSpaceAppState extends State<GameSpaceApp> {
     return MaterialApp(
       title: 'Dash Game Space',
       theme: GameSpaceTheme.dark(),
-      home: _checked
-          ? const HomeScreen()
-          : const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+      home: !_checked
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : _capabilities.isEmpty
+              ? const Scaffold(
+                  body: Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Dash Essential unavailable. Local-only basic mode.',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                )
+              : HomeScreen(capabilities: _capabilities),
     );
   }
 }

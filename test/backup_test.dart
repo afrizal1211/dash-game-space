@@ -12,11 +12,10 @@ void main() {
     expect(GameSpaceBackup.fromJson(raw), backup);
   });
 
-  test('import needs an explicit confirmation token', () {
-    expect(GameSpaceBackup.importCommand(confirm: false), isNull);
+  test('import uses a Dash-issued token', () {
     expect(
-      GameSpaceBackup.importCommand(confirm: true),
-      'ACTION import.apply confirm',
+      GameSpaceBackup.importCommand('nonce-1'),
+      'ACTION import.apply nonce-1',
     );
   });
 }

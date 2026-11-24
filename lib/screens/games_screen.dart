@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/game_library.dart';
+import 'profile_screen.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -32,6 +33,12 @@ class _GamesScreenState extends State<GamesScreen> {
               return ListTile(
                 title: Text(game.label),
                 subtitle: Text(game.package),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>
+                        ProfileScreen(package: game.package),
+                  ),
+                ),
               );
             },
           );
