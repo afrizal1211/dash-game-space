@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/game_library.dart';
 import 'profile_screen.dart';
+import '../widgets/game_backdrop.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -16,8 +17,10 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text('My games')),
-      body: FutureBuilder<List<GameEntry>>(
+      body: GameBackdrop(
+        child: FutureBuilder<List<GameEntry>>(
         future: _games,
         builder: (BuildContext context, AsyncSnapshot<List<GameEntry>> snapshot) {
           if (!snapshot.hasData) {
@@ -27,6 +30,7 @@ class _GamesScreenState extends State<GamesScreen> {
             return const Center(child: Text('No games yet. Add one to begin.'));
           }
           return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 24),
             itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext context, int index) {
               final GameEntry game = snapshot.data![index];
@@ -43,6 +47,7 @@ class _GamesScreenState extends State<GamesScreen> {
             },
           );
         },
+      ),
       ),
     );
   }
