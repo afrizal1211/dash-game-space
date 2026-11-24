@@ -17,7 +17,7 @@ class NavCapsule extends StatelessWidget {
   static const Map<String, IconData> _icons = <String, IconData>{
     'Explore': Icons.explore_rounded,
     'Handheld': Icons.smartphone_rounded,
-    'Gamepad': Icons.sports_esports_rounded,
+    'Gamepad': Icons.videogame_asset_rounded,
   };
 
   @override

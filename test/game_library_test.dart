@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dash_game_space/bridge/dash_bridge.dart';
 import 'package:dash_game_space/data/game_library.dart';
 
 void main() {

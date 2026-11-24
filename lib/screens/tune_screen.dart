@@ -13,6 +13,7 @@ class TuneScreen extends StatefulWidget {
 
 class _TuneScreenState extends State<TuneScreen> {
   String _selected = 'Performance';
+  ScaffoldMessengerState? _messenger;
 
   static const Map<String, String> _actions = <String, String>{
     'Performance': 'SET perf 1',
@@ -33,8 +34,14 @@ class _TuneScreenState extends State<TuneScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _messenger = ScaffoldMessenger.maybeOf(context);
+  }
+
+  @override
   void dispose() {
-    ScaffoldMessenger.maybeOf(context)?.clearSnackBars();
+    _messenger?.clearSnackBars();
     super.dispose();
   }
 
