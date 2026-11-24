@@ -22,30 +22,35 @@ class WidgetsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Widgets')),
-      body: GridView.count(
+      body: SingleChildScrollView(
         key: const Key('widget-groups'),
-        crossAxisCount: 2,
         padding: const EdgeInsets.all(12),
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        children: <Widget>[
-          for (final String group in widgetGroups)
-            Card(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(group, textAlign: TextAlign.center),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'unavailable',
-                      style: TextStyle(fontSize: 11, color: Colors.white54),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: <Widget>[
+            for (final String group in widgetGroups)
+              SizedBox(
+                width: 160,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(group, textAlign: TextAlign.center),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'unavailable',
+                          style: TextStyle(fontSize: 11, color: Colors.white54),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
