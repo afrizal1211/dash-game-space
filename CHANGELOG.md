@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+### Changed
+
+- Rebuilt with the same new release signing key as Dash Essential 1.23.20 so
+  the signature-protected bridge is granted. Uninstall the old Game Space and
+  Dash Essential builds before installing this set.
+
 ## 1.0.0
 
 ### Added

@@ -18,7 +18,7 @@ root daemon directly.
 ## Requirements
 
 - Android 12 (API 31) or newer.
-- Dash Essential 1.23.18-dash or newer installed.
+- Dash Essential 1.23.20-dash or newer installed.
 - Both apps signed with the same release key. The bridge uses a `signature`
   permission and refuses callers with a different signing identity.
 
