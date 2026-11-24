@@ -5,9 +5,9 @@ import '../theme.dart';
 class GlassCard extends StatelessWidget {
   const GlassCard({
     required this.child,
-    this.key,
+    super.key,
     this.onTap,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final VoidCallback? onTap;

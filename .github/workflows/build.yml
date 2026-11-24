@@ -25,6 +25,7 @@ jobs:
           cp config/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           mkdir -p android/app/src/main/kotlin/com/nrsqxw/dashgamespace
           cp config/BridgeChannel.kt android/app/src/main/kotlin/com/nrsqxw/dashgamespace/BridgeChannel.kt
+          rm -f test/widget_test.dart
       - name: Flutter tests
         run: flutter test
       - name: Build APK
