@@ -46,22 +46,22 @@ jobs:
             echo "DASH_GS_KEY_ALIAS=$alias_name"
           } >> "$GITHUB_ENV"
           cat >> android/app/build.gradle <<'GRADLE'
-android {
-    signingConfigs {
-        release {
-            storeFile file(System.getenv("DASH_GS_KEYSTORE"))
-            storePassword System.getenv("DASH_GS_KEYSTORE_PASS")
-            keyAlias System.getenv("DASH_GS_KEY_ALIAS")
-            keyPassword System.getenv("DASH_GS_KEYSTORE_PASS")
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
-}
-GRADLE
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file(System.getenv("DASH_GS_KEYSTORE"))
+                      storePassword System.getenv("DASH_GS_KEYSTORE_PASS")
+                      keyAlias System.getenv("DASH_GS_KEY_ALIAS")
+                      keyPassword System.getenv("DASH_GS_KEYSTORE_PASS")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          GRADLE
       - name: Flutter tests
         run: flutter test
       - name: Build APK
