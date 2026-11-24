@@ -3,10 +3,11 @@ name: Dash Game Space
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -30,3 +31,43 @@ jobs:
         run: flutter test
       - name: Build APK
         run: flutter build apk --release
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dash-game-space-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          notes="$(awk -v want="$version" '
+            index($0, "## " want) == 1 { capture = 1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md)"
+          if [ -z "$notes" ]; then
+            notes="Release $version"
+          fi
+          {
+            printf '## Dash Game Space %s\n\n' "$tag"
+            printf '%s\n\n' "$notes"
+            printf '### How to use\n\n'
+            printf 'Install Dash Essential first. Both apps must share the same signing key.\n'
+            printf 'Open the app, then use Home to reach games, profiles, tune and widgets.\n\n'
+            printf '### Author\n\n'
+            printf '[afrizal1211](https://github.com/afrizal1211)\n'
+          } > release-notes.md
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --title "Dash Game Space $tag" --notes-file release-notes.md
+            gh release upload "$tag" build/app/outputs/flutter-apk/app-release.apk --clobber
+          else
+            gh release create "$tag" \
+              --title "Dash Game Space $tag" \
+              --notes-file release-notes.md \
+              build/app/outputs/flutter-apk/app-release.apk
+          fi
