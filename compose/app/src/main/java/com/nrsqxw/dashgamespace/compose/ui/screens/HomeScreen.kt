@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nrsqxw.dashgamespace.compose.ui.GameSpaceUiState
 import com.nrsqxw.dashgamespace.compose.ui.SpaceMode
 import com.nrsqxw.dashgamespace.compose.ui.WidgetState
 import com.nrsqxw.dashgamespace.compose.ui.components.BentoCard

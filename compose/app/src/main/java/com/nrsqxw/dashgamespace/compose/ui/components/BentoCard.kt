@@ -47,7 +47,7 @@ fun BentoCard(
     var focused by remember { mutableStateOf(false) }
     val borderColor by animateColorAsState(
         targetValue = when {
-            showFocusRing && focused.value -> MaterialTheme.colorScheme.primary
+            showFocusRing && focused -> MaterialTheme.colorScheme.primary
             active -> MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)
             else -> MaterialTheme.colorScheme.outline
         },
