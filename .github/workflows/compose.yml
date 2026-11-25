@@ -3,13 +3,14 @@ name: Dash Game Space Compose
 on:
   push:
     branches: [main]
+    tags: ['v*-compose']
     paths:
       - 'compose/**'
       - '.github/workflows/compose.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -23,13 +24,58 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.DASH_RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASS: ${{ secrets.DASH_RELEASE_KEY_PASS }}
+          KEYSTORE_ALIAS: ${{ secrets.DASH_RELEASE_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          [ -n "$KEYSTORE_B64" ] || { echo "DASH_RELEASE_KEYSTORE_BASE64 is required" >&2; exit 1; }
+          [ -n "$KEYSTORE_PASS" ] || { echo "DASH_RELEASE_KEY_PASS is required" >&2; exit 1; }
+          keystore="$RUNNER_TEMP/dash-game-space-compose-release.p12"
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keystore"
+          chmod 600 "$keystore"
+          {
+            echo "DASH_GS_KEYSTORE=$keystore"
+            echo "DASH_GS_KEYSTORE_PASS=$KEYSTORE_PASS"
+            echo "DASH_GS_KEY_ALIAS=${KEYSTORE_ALIAS:-dash-essential}"
+          } >> "$GITHUB_ENV"
       - name: Build Compose APK
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
-        run: cd compose && gradle assembleDebug --no-daemon
+        run: cd compose && gradle assembleRelease --no-daemon
       - name: Upload Compose APK
         uses: actions/upload-artifact@v4
         with:
           name: dash-game-space-compose-apk
-          path: compose/app/build/outputs/apk/debug/app-debug.apk
+          path: compose/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v') && endsWith(github.ref, '-compose')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          apk="compose/app/build/outputs/apk/release/app-release.apk"
+          {
+            printf '## Dash Game Space (Compose) %s\n\n' "$tag"
+            printf 'Material 3 / Jetpack Compose build with the OLED dark theme,\n'
+            printf 'bento home, mode switcher, Tune, Widgets, Games and Tools screens.\n\n'
+            printf '[Read the README](https://github.com/afrizal1211/dash-game-space#readme)\n\n'
+            printf '### How to use\n\n'
+            printf 'Install Dash Essential 1.23.20-dash first. Both apps must share the\n'
+            printf 'same signing key so the bridge permission is granted.\n\n'
+            printf '### Author\n\n'
+            printf '[afrizal1211](https://github.com/afrizal1211)\n'
+          } > compose-release-notes.md
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --title "Dash Game Space Compose $tag" --notes-file compose-release-notes.md
+            gh release upload "$tag" "$apk" --clobber
+          else
+            gh release create "$tag" \
+              --title "Dash Game Space Compose $tag" \
+              --notes-file compose-release-notes.md \
+              "$apk"
+          fi

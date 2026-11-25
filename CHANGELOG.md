@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.2
+
+### Fixed
+
+- Game list now filters system packages and overlays, and the last row has
+  enough bottom padding.
+- Tune shows the active mode and clears error messages when leaving the page.
+- Performance and Tools cards open the correct pages with working actions.
+- Mode tabs switch content, and each home card has a distinct icon.
+
+### Added
+
+- Native Jetpack Compose / Material 3 module under `compose/` with OLED dark
+  theme, bento home, edge-to-edge layout and D-Pad focus states.
+
 ## 1.0.1
 
 ### Changed

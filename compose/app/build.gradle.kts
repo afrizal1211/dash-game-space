@@ -20,6 +20,24 @@ android {
         compose = true
     }
 
+    signingConfigs {
+        create("release") {
+            val storePath = System.getenv("DASH_GS_KEYSTORE")
+            storeFile = file(storePath ?: "")
+            storePassword = System.getenv("DASH_GS_KEYSTORE_PASS")
+            keyAlias = System.getenv("DASH_GS_KEY_ALIAS")
+            keyPassword = System.getenv("DASH_GS_KEYSTORE_PASS")
+        }
+    }
+
+    buildTypes {
+        release {
+            if (!System.getenv("DASH_GS_KEYSTORE").isNullOrEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
