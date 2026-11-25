@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0 (Compose)
+
+### Added
+
+- Game profile rows show real launcher icons, app labels, package names and
+  profile badges.
+- Performance widgets are capability-aware and actionable, with precise
+  unsupported reasons.
+- Search, Monitor, Permissions, Appearance, Quick Settings, Music, Capture and
+  Crosshair screens.
+- Gamepad detection prompt, mode transitions and widget drag ordering.
+
 ## 1.0.2
 
 ### Fixed
