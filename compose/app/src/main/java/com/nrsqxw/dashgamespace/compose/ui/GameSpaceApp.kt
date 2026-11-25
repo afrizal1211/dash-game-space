@@ -12,9 +12,11 @@ import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.nrsqxw.dashgamespace.compose.DashBridge
-import com.nrsqxw.dashgamespace.compose.ui.screens.GamesScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.AppearanceScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.HomeScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.MonitorScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.PermissionsScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.QuickSettingsScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.SearchScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.ToolsScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.TuneScreen
@@ -30,6 +32,8 @@ private sealed interface Screen {
     data object Search : Screen
     data object Monitor : Screen
     data object Permissions : Screen
+    data object Appearance : Screen
+    data object QuickSettings : Screen
 }
 
 @Composable
@@ -133,6 +137,8 @@ fun GameSpaceApp() {
             onSearch = { screen.value = Screen.Search },
             onMonitor = { screen.value = Screen.Monitor },
             onPermissions = { screen.value = Screen.Permissions },
+            onQuickSettings = { screen.value = Screen.QuickSettings },
+            onAppearance = { screen.value = Screen.Appearance },
             onBack = ::navigateBack,
         )
         Screen.Search -> SearchScreen(
@@ -153,6 +159,15 @@ fun GameSpaceApp() {
         )
         Screen.Permissions -> PermissionsScreen(
             onRequestOverlay = { DashBridge.send(context, "ACTION game.request.overlay") {} },
+            onBack = ::navigateBack,
+        )
+        Screen.Appearance -> AppearanceScreen(
+            state = state.value.appearance,
+            onChange = { state.value = state.value.copy(appearance = it) },
+            onBack = ::navigateBack,
+        )
+        Screen.QuickSettings -> QuickSettingsScreen(
+            onCommand = { DashBridge.send(context, it) {} },
             onBack = ::navigateBack,
         )
     }

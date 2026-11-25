@@ -22,6 +22,14 @@ data class WidgetItem(
 
 enum class WidgetState { Ready, Active, PermissionRequired, Unsupported }
 
+data class AppearanceState(
+    val accent: String = "Cyan",
+    val cardStyle: String = "Compact",
+    val dockColor: String = "Accent",
+    val edge: String = "Both",
+    val autohide: Boolean = true,
+)
+
 data class GameSpaceUiState(
     val mode: SpaceMode = SpaceMode.Explore,
     val dashConnected: Boolean = false,
@@ -31,6 +39,7 @@ data class GameSpaceUiState(
     val bypassCharging: Boolean = false,
     val bypassSupported: Boolean = false,
     val games: List<GameItem> = emptyList(),
+    val appearance: AppearanceState = AppearanceState(),
     val widgets: List<WidgetItem> = widgetsFor(emptySet()),
 ) {
     companion object {
