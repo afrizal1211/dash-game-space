@@ -13,8 +13,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.nrsqxw.dashgamespace.compose.DashBridge
 import com.nrsqxw.dashgamespace.compose.ui.screens.AppearanceScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.CaptureScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.CrosshairScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.GamesScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.HomeScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.MonitorScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.MusicScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.PermissionsScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.QuickSettingsScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.SearchScreen
@@ -34,6 +38,9 @@ private sealed interface Screen {
     data object Permissions : Screen
     data object Appearance : Screen
     data object QuickSettings : Screen
+    data object Music : Screen
+    data object Capture : Screen
+    data object Crosshair : Screen
 }
 
 @Composable
@@ -139,6 +146,9 @@ fun GameSpaceApp() {
             onPermissions = { screen.value = Screen.Permissions },
             onQuickSettings = { screen.value = Screen.QuickSettings },
             onAppearance = { screen.value = Screen.Appearance },
+            onMusic = { screen.value = Screen.Music },
+            onCapture = { screen.value = Screen.Capture },
+            onCrosshair = { screen.value = Screen.Crosshair },
             onBack = ::navigateBack,
         )
         Screen.Search -> SearchScreen(
@@ -170,6 +180,13 @@ fun GameSpaceApp() {
             onCommand = { DashBridge.send(context, it) {} },
             onBack = ::navigateBack,
         )
+        Screen.Music -> MusicScreen(onBack = ::navigateBack)
+        Screen.Capture -> CaptureScreen(
+            onScreenshot = { DashBridge.send(context, "ACTION game.screenshot") {} },
+            onToggleRecording = { DashBridge.send(context, "ACTION game.record.screen") {} },
+            onBack = ::navigateBack,
+        )
+        Screen.Crosshair -> CrosshairScreen(onBack = ::navigateBack)
     }
 }
 

@@ -28,10 +28,16 @@ fun ToolsScreen(
     onPermissions: () -> Unit,
     onQuickSettings: () -> Unit,
     onAppearance: () -> Unit,
+    onMusic: () -> Unit,
+    onCapture: () -> Unit,
+    onCrosshair: () -> Unit,
     onBack: () -> Unit,
 ) {
     val items = listOf(
         "Quick Settings" to "Brightness, volume, DND, capture",
+        "Music" to "Local tracks and floating dot",
+        "Capture" to "Screenshot and screen recording",
+        "Crosshair" to "Size, opacity and edge",
         "Search" to "Find apps, controls and settings",
         "Monitor" to "Live telemetry",
         "Permissions" to "Overlay and privileged access",
@@ -74,12 +80,15 @@ fun ToolsScreen(
                         .clickable(
                             onClick = when (index) {
                                 0 -> onQuickSettings
-                                1 -> onSearch
-                                2 -> onMonitor
-                                3 -> onPermissions
-                                4 -> onAppearance
-                                7 -> onExport
-                                8 -> onImport
+                                1 -> onMusic
+                                2 -> onCapture
+                                3 -> onCrosshair
+                                4 -> onSearch
+                                5 -> onMonitor
+                                6 -> onPermissions
+                                7 -> onAppearance
+                                10 -> onExport
+                                11 -> onImport
                                 else -> ({})
                             },
                         )
