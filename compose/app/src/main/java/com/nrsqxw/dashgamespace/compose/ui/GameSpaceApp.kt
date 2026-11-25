@@ -48,7 +48,11 @@ fun GameSpaceApp() {
                 val result = root.optString("result", "{}")
                 JSONObject(result).keys().asSequence().toSet()
             }.getOrDefault(emptySet())
-            state.value = state.value.copy(dashConnected = keys.isNotEmpty())
+            state.value = state.value.copy(
+                dashConnected = keys.isNotEmpty(),
+                capabilities = keys,
+                widgets = GameSpaceUiState.widgetsFor(keys),
+            )
         }
         DashBridge.send(context, "GET app.list") { raw ->
             val games = runCatching {
@@ -112,8 +116,8 @@ fun GameSpaceApp() {
         Screen.Widgets -> WidgetsScreen(
             state = state.value,
             onWidgetClick = { widget ->
-                if (widget.state == WidgetState.PermissionRequired) {
-                    DashBridge.send(context, "ACTION game.request.overlay") {}
+                widget.command?.let { command ->
+                    DashBridge.send(context, command) {}
                 }
             },
             onBack = ::navigateBack,

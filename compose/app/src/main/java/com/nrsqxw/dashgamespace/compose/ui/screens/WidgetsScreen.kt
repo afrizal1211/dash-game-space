@@ -87,8 +87,14 @@ private fun WidgetCard(widget: WidgetItem, onClick: () -> Unit) {
         )
         Text(widget.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 10.dp))
         Text(
-            text = widget.permission?.let { "Permission Required · $it" }
-                ?: widget.state.name.replace('_', ' '),
+            text = when (widget.state) {
+                WidgetState.Active -> "Active"
+                WidgetState.Ready -> "Ready"
+                WidgetState.PermissionRequired ->
+                    widget.permission?.let { "Permission Required · $it" } ?: "Permission Required"
+                WidgetState.Unsupported ->
+                    widget.permission?.let { "Unsupported · $it" } ?: "Unsupported"
+            },
             style = MaterialTheme.typography.bodyMedium.copy(color = accent),
         )
     }

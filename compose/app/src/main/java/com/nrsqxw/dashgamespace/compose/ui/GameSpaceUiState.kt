@@ -1,10 +1,10 @@
 package com.nrsqxw.dashgamespace.compose.ui
 
+import androidx.compose.ui.graphics.ImageBitmap
+
 enum class SpaceMode { Explore, Handheld, Gamepad }
 
 enum class PerformanceMode { Powersave, Balanced, Performance }
-
-import androidx.compose.ui.graphics.ImageBitmap
 
 data class GameItem(
     val packageName: String,
@@ -17,6 +17,7 @@ data class WidgetItem(
     val name: String,
     val state: WidgetState,
     val permission: String? = null,
+    val command: String? = null,
 )
 
 enum class WidgetState { Ready, Active, PermissionRequired, Unsupported }
@@ -24,22 +25,45 @@ enum class WidgetState { Ready, Active, PermissionRequired, Unsupported }
 data class GameSpaceUiState(
     val mode: SpaceMode = SpaceMode.Explore,
     val dashConnected: Boolean = false,
+    val capabilities: Set<String> = emptySet(),
     val performanceMode: PerformanceMode = PerformanceMode.Balanced,
     val touchBoost: Boolean = false,
     val bypassCharging: Boolean = false,
     val bypassSupported: Boolean = false,
     val games: List<GameItem> = emptyList(),
-    val widgets: List<WidgetItem> = defaultWidgets(),
+    val widgets: List<WidgetItem> = widgetsFor(emptySet()),
 ) {
     companion object {
-        fun defaultWidgets(): List<WidgetItem> = listOf(
-            WidgetItem("FPS", WidgetState.Ready),
-            WidgetItem("CPU / GPU", WidgetState.Ready),
-            WidgetItem("Thermal", WidgetState.Ready),
-            WidgetItem("Brightness", WidgetState.Ready),
-            WidgetItem("Volume", WidgetState.Ready),
-            WidgetItem("Crosshair", WidgetState.PermissionRequired, "Overlay"),
-            WidgetItem("Live Monitor", WidgetState.Ready),
+        private data class Definition(
+            val name: String,
+            val required: String,
+            val command: String,
+            val reason: String,
         )
+
+        private val definitions = listOf(
+            Definition("FPS", "fps", "GET app.fps.light", "FPS node not exposed"),
+            Definition("CPU / GPU", "gpu", "GET health", "GPU telemetry unavailable"),
+            Definition("Thermal", "thermal", "GET health", "Thermal node unavailable"),
+            Definition("Brightness", "display", "SET display.brightness 180", "Display control unavailable"),
+            Definition("Volume", "audio", "SET audio.volume 3 50", "Audio control unavailable"),
+            Definition("Crosshair", "overlay", "ACTION game.request.overlay", "Overlay permission needed"),
+            Definition("Live Monitor", "fps", "GET app.fps.light", "FPS node not exposed"),
+        )
+
+        fun widgetsFor(capabilities: Set<String>): List<WidgetItem> =
+            definitions.map { definition ->
+                val supported = capabilities.contains(definition.required)
+                WidgetItem(
+                    name = definition.name,
+                    state = when {
+                        supported && definition.required == "overlay" -> WidgetState.PermissionRequired
+                        supported -> WidgetState.Active
+                        else -> WidgetState.Unsupported
+                    },
+                    permission = if (supported) null else definition.reason,
+                    command = definition.command,
+                )
+            }
     }
 }
