@@ -67,7 +67,7 @@ jobs:
             printf 'Capture, Crosshair, gamepad prompt, transitions and widget ordering.\n\n'
             printf '[Read the README](https://github.com/afrizal1211/dash-game-space#readme)\n\n'
             printf '### How to use\n\n'
-            printf 'Install Dash Essential 1.23.20-dash first. Both apps must share the\n'
+            printf 'Install Dash Essential 1.23.21-dash first. Both apps must share the\n'
             printf 'same signing key so the bridge permission is granted.\n\n'
             printf '### Author\n\n'
             printf '[afrizal1211](https://github.com/afrizal1211)\n'
