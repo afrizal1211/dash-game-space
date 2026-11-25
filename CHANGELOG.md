@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.1 (Compose)
+
+### Fixed
+
+- Game launch now uses the Android launcher intent instead of an unsupported
+  bridge command.
+- Overlay permission opens Android settings directly.
+- Screenshot and screen recording now use real Dash bridge commands.
+
+### Changed
+
+- Requires Dash Essential 1.23.21-dash or newer for GPU metrics and capture
+  commands.
+
 ## 1.1.0 (Compose)
 
 ### Added

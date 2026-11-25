@@ -61,8 +61,10 @@ jobs:
           apk="compose/app/build/outputs/apk/release/app-release.apk"
           {
             printf '## Dash Game Space (Compose) %s\n\n' "$tag"
-            printf 'Material 3 / Jetpack Compose build with the OLED dark theme,\n'
-            printf 'bento home, mode switcher, Tune, Widgets, Games and Tools screens.\n\n'
+            printf 'Material 3 / Jetpack Compose build with OLED dark theme,\n'
+            printf 'bento home, mode switcher, game icons, capability-aware Performance,\n'
+            printf 'Search, Monitor, Permissions, Appearance, Quick Settings, Music,\n'
+            printf 'Capture, Crosshair, gamepad prompt, transitions and widget ordering.\n\n'
             printf '[Read the README](https://github.com/afrizal1211/dash-game-space#readme)\n\n'
             printf '### How to use\n\n'
             printf 'Install Dash Essential 1.23.20-dash first. Both apps must share the\n'

@@ -10,7 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import android.hardware.input.InputManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.view.InputDevice
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -119,7 +122,7 @@ fun GameSpaceApp() {
             )
             Screen.Games -> GamesScreen(
                 state = state.value,
-                onLaunch = { DashBridge.send(context, "ACTION game.launch ${it.packageName}") {} },
+                onLaunch = { launchGame(context, it.packageName) },
                 onBack = ::navigateBack,
             )
             Screen.Tune -> TuneScreen(
@@ -177,7 +180,7 @@ fun GameSpaceApp() {
                 gameNames = state.value.games.map { it.label },
                 onOpenGame = { label ->
                     state.value.games.firstOrNull { it.label == label }?.let { game ->
-                        DashBridge.send(context, "ACTION game.launch ${game.packageName}") {}
+                        launchGame(context, game.packageName)
                     }
                 },
                 onOpenTune = { screen.value = Screen.Tune },
@@ -190,7 +193,7 @@ fun GameSpaceApp() {
                 onBack = ::navigateBack,
             )
             Screen.Permissions -> PermissionsScreen(
-                onRequestOverlay = { DashBridge.send(context, "ACTION game.request.overlay") {} },
+                onRequestOverlay = { openOverlaySettings(context) },
                 onBack = ::navigateBack,
             )
             Screen.Appearance -> AppearanceScreen(
@@ -245,4 +248,19 @@ private fun Drawable.toImageBitmap(): ImageBitmap? {
     setBounds(0, 0, width, height)
     draw(canvas)
     return bitmap.asImageBitmap()
+}
+
+private fun launchGame(context: Context, packageName: String) {
+    val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+}
+
+private fun openOverlaySettings(context: Context) {
+    val intent = Intent(
+        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+        Uri.parse("package:${context.packageName}"),
+    )
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
 }
