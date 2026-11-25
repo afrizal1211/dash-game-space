@@ -13,7 +13,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.nrsqxw.dashgamespace.compose.DashBridge
 import com.nrsqxw.dashgamespace.compose.ui.screens.GamesScreen
-import com.nrsqxw.dashgamespace.compose.ui.screens.HomeScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.MonitorScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.PermissionsScreen
+import com.nrsqxw.dashgamespace.compose.ui.screens.SearchScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.ToolsScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.TuneScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.WidgetsScreen
@@ -25,6 +27,9 @@ private sealed interface Screen {
     data object Tune : Screen
     data object Widgets : Screen
     data object Tools : Screen
+    data object Search : Screen
+    data object Monitor : Screen
+    data object Permissions : Screen
 }
 
 @Composable
@@ -125,6 +130,29 @@ fun GameSpaceApp() {
         Screen.Tools -> ToolsScreen(
             onExport = {},
             onImport = { DashBridge.send(context, "GET game.confirm import") {} },
+            onSearch = { screen.value = Screen.Search },
+            onMonitor = { screen.value = Screen.Monitor },
+            onPermissions = { screen.value = Screen.Permissions },
+            onBack = ::navigateBack,
+        )
+        Screen.Search -> SearchScreen(
+            gameNames = state.value.games.map { it.label },
+            onOpenGame = { label ->
+                state.value.games.firstOrNull { it.label == label }?.let { game ->
+                    DashBridge.send(context, "ACTION game.launch ${game.packageName}") {}
+                }
+            },
+            onOpenTune = { screen.value = Screen.Tune },
+            onOpenSettings = { screen.value = Screen.Tools },
+            onBack = ::navigateBack,
+        )
+        Screen.Monitor -> MonitorScreen(
+            state = state.value,
+            onRefresh = { DashBridge.send(context, "GET health") {} },
+            onBack = ::navigateBack,
+        )
+        Screen.Permissions -> PermissionsScreen(
+            onRequestOverlay = { DashBridge.send(context, "ACTION game.request.overlay") {} },
             onBack = ::navigateBack,
         )
     }

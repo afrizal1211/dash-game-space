@@ -23,12 +23,17 @@ import androidx.compose.ui.unit.dp
 fun ToolsScreen(
     onExport: () -> Unit,
     onImport: () -> Unit,
+    onSearch: () -> Unit,
+    onMonitor: () -> Unit,
+    onPermissions: () -> Unit,
     onBack: () -> Unit,
 ) {
     val items = listOf(
+        "Search" to "Find apps, controls and settings",
+        "Monitor" to "Live telemetry",
+        "Permissions" to "Overlay and privileged access",
         "Appearance" to "Theme, density, navigation",
         "Language" to "English",
-        "Permissions" to "Signature bridge and overlay",
         "Data" to "Games, profiles, widgets",
         "Export Game Space backup" to "Save local JSON",
         "Import Dash backup" to "Requires Dash confirmation",
@@ -65,8 +70,11 @@ fun ToolsScreen(
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                         .clickable(
                             onClick = when (index) {
-                                4 -> onExport
-                                5 -> onImport
+                                0 -> onSearch
+                                1 -> onMonitor
+                                2 -> onPermissions
+                                6 -> onExport
+                                7 -> onImport
                                 else -> ({})
                             },
                         )
