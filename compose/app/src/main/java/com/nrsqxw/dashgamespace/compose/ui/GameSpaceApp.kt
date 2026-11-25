@@ -1,11 +1,17 @@
 package com.nrsqxw.dashgamespace.compose.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import android.graphics.Bitmap
+import android.hardware.input.InputManager
+import android.view.InputDevice
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -58,6 +64,12 @@ fun GameSpaceApp() {
     }
 
     LaunchedEffect(Unit) {
+        val manager = context.getSystemService(InputManager::class.java)
+        val gamepad = manager?.inputDeviceIds?.any { id ->
+            manager.getInputDevice(id)?.sources?.and(InputDevice.SOURCE_GAMEPAD) ==
+                InputDevice.SOURCE_GAMEPAD
+        } == true
+        state.value = state.value.copy(gamepadConnected = gamepad)
         DashBridge.send(context, "GET app.capabilities") { raw ->
             val keys = runCatching {
                 val root = JSONObject(raw)
@@ -94,99 +106,132 @@ fun GameSpaceApp() {
         }
     }
 
-    when (screen.value) {
-        Screen.Home -> HomeScreen(
-            state = state.value,
-            onModeChange = { state.value = state.value.copy(mode = it) },
-            onOpenGames = { screen.value = Screen.Games },
-            onOpenTune = { screen.value = Screen.Tune },
-            onOpenWidgets = { screen.value = Screen.Widgets },
-            onOpenTools = { screen.value = Screen.Tools },
-        )
-        Screen.Games -> GamesScreen(
-            state = state.value,
-            onLaunch = { DashBridge.send(context, "ACTION game.launch ${it.packageName}") {} },
-            onBack = ::navigateBack,
-        )
-        Screen.Tune -> TuneScreen(
-            state = state.value,
-            onModeChange = {
-                state.value = state.value.copy(performanceMode = it)
-                val command = when (it) {
-                    PerformanceMode.Powersave -> "SET perf 0"
-                    PerformanceMode.Balanced -> "SET perf 1"
-                    PerformanceMode.Performance -> "SET perf 2"
-                }
-                DashBridge.send(context, command) {}
-            },
-            onTouchBoostChange = {
-                state.value = state.value.copy(touchBoost = it)
-                DashBridge.send(context, if (it) "SET touch 3" else "SET touch 0") {}
-            },
-            onBypassChange = {
-                state.value = state.value.copy(bypassCharging = it)
-                DashBridge.send(context, "SET charging.bypass ${if (it) 1 else 0}") {}
-            },
-            onBack = ::navigateBack,
-        )
-        Screen.Widgets -> WidgetsScreen(
-            state = state.value,
-            onWidgetClick = { widget ->
-                widget.command?.let { command ->
+    Crossfade(targetState = screen.value, label = "screen") { target ->
+        when (target) {
+            Screen.Home -> HomeScreen(
+                state = state.value,
+                onModeChange = { state.value = state.value.copy(mode = it) },
+                onOpenGames = { screen.value = Screen.Games },
+                onOpenTune = { screen.value = Screen.Tune },
+                onOpenWidgets = { screen.value = Screen.Widgets },
+                onOpenTools = { screen.value = Screen.Tools },
+            )
+            Screen.Games -> GamesScreen(
+                state = state.value,
+                onLaunch = { DashBridge.send(context, "ACTION game.launch ${it.packageName}") {} },
+                onBack = ::navigateBack,
+            )
+            Screen.Tune -> TuneScreen(
+                state = state.value,
+                onModeChange = {
+                    state.value = state.value.copy(performanceMode = it)
+                    val command = when (it) {
+                        PerformanceMode.Powersave -> "SET perf 0"
+                        PerformanceMode.Balanced -> "SET perf 1"
+                        PerformanceMode.Performance -> "SET perf 2"
+                    }
                     DashBridge.send(context, command) {}
-                }
+                },
+                onTouchBoostChange = {
+                    state.value = state.value.copy(touchBoost = it)
+                    DashBridge.send(context, if (it) "SET touch 3" else "SET touch 0") {}
+                },
+                onBypassChange = {
+                    state.value = state.value.copy(bypassCharging = it)
+                    DashBridge.send(context, "SET charging.bypass ${if (it) 1 else 0}") {}
+                },
+                onBack = ::navigateBack,
+            )
+            Screen.Widgets -> WidgetsScreen(
+                state = state.value,
+                    onWidgetClick = { widget ->
+                        widget.command?.let { command ->
+                            DashBridge.send(context, command) {}
+                        }
+                    },
+                    onMove = { from, to ->
+                        val current = state.value.widgets.toMutableList()
+                        if (from in current.indices && to in current.indices) {
+                            val item = current.removeAt(from)
+                            current.add(to, item)
+                            state.value = state.value.copy(widgets = current)
+                        }
+                    },
+                onBack = ::navigateBack,
+            )
+            Screen.Tools -> ToolsScreen(
+                onExport = {},
+                onImport = { DashBridge.send(context, "GET game.confirm import") {} },
+                onSearch = { screen.value = Screen.Search },
+                onMonitor = { screen.value = Screen.Monitor },
+                onPermissions = { screen.value = Screen.Permissions },
+                onQuickSettings = { screen.value = Screen.QuickSettings },
+                onAppearance = { screen.value = Screen.Appearance },
+                onMusic = { screen.value = Screen.Music },
+                onCapture = { screen.value = Screen.Capture },
+                onCrosshair = { screen.value = Screen.Crosshair },
+                onBack = ::navigateBack,
+            )
+            Screen.Search -> SearchScreen(
+                gameNames = state.value.games.map { it.label },
+                onOpenGame = { label ->
+                    state.value.games.firstOrNull { it.label == label }?.let { game ->
+                        DashBridge.send(context, "ACTION game.launch ${game.packageName}") {}
+                    }
+                },
+                onOpenTune = { screen.value = Screen.Tune },
+                onOpenSettings = { screen.value = Screen.Tools },
+                onBack = ::navigateBack,
+            )
+            Screen.Monitor -> MonitorScreen(
+                state = state.value,
+                onRefresh = { DashBridge.send(context, "GET health") {} },
+                onBack = ::navigateBack,
+            )
+            Screen.Permissions -> PermissionsScreen(
+                onRequestOverlay = { DashBridge.send(context, "ACTION game.request.overlay") {} },
+                onBack = ::navigateBack,
+            )
+            Screen.Appearance -> AppearanceScreen(
+                state = state.value.appearance,
+                onChange = { state.value = state.value.copy(appearance = it) },
+                onBack = ::navigateBack,
+            )
+            Screen.QuickSettings -> QuickSettingsScreen(
+                onCommand = { DashBridge.send(context, it) {} },
+                onBack = ::navigateBack,
+            )
+            Screen.Music -> MusicScreen(onBack = ::navigateBack)
+            Screen.Capture -> CaptureScreen(
+                onScreenshot = { DashBridge.send(context, "ACTION game.screenshot") {} },
+                onToggleRecording = { DashBridge.send(context, "ACTION game.record.screen") {} },
+                onBack = ::navigateBack,
+            )
+            Screen.Crosshair -> CrosshairScreen(onBack = ::navigateBack)
+        }
+    }
+
+    if (state.value.gamepadConnected && !state.value.gamepadPromptShown) {
+        AlertDialog(
+            onDismissRequest = {
+                state.value = state.value.copy(gamepadPromptShown = true)
             },
-            onBack = ::navigateBack,
-        )
-        Screen.Tools -> ToolsScreen(
-            onExport = {},
-            onImport = { DashBridge.send(context, "GET game.confirm import") {} },
-            onSearch = { screen.value = Screen.Search },
-            onMonitor = { screen.value = Screen.Monitor },
-            onPermissions = { screen.value = Screen.Permissions },
-            onQuickSettings = { screen.value = Screen.QuickSettings },
-            onAppearance = { screen.value = Screen.Appearance },
-            onMusic = { screen.value = Screen.Music },
-            onCapture = { screen.value = Screen.Capture },
-            onCrosshair = { screen.value = Screen.Crosshair },
-            onBack = ::navigateBack,
-        )
-        Screen.Search -> SearchScreen(
-            gameNames = state.value.games.map { it.label },
-            onOpenGame = { label ->
-                state.value.games.firstOrNull { it.label == label }?.let { game ->
-                    DashBridge.send(context, "ACTION game.launch ${game.packageName}") {}
-                }
+            title = { Text("Gamepad detected") },
+            text = { Text("Switch to Gamepad mode for larger targets and D-Pad navigation?") },
+            confirmButton = {
+                Button(onClick = {
+                    state.value = state.value.copy(
+                        gamepadPromptShown = true,
+                        mode = SpaceMode.Gamepad,
+                    )
+                }) { Text("Switch") }
             },
-            onOpenTune = { screen.value = Screen.Tune },
-            onOpenSettings = { screen.value = Screen.Tools },
-            onBack = ::navigateBack,
+            dismissButton = {
+                TextButton(onClick = {
+                    state.value = state.value.copy(gamepadPromptShown = true)
+                }) { Text("Stay") }
+            },
         )
-        Screen.Monitor -> MonitorScreen(
-            state = state.value,
-            onRefresh = { DashBridge.send(context, "GET health") {} },
-            onBack = ::navigateBack,
-        )
-        Screen.Permissions -> PermissionsScreen(
-            onRequestOverlay = { DashBridge.send(context, "ACTION game.request.overlay") {} },
-            onBack = ::navigateBack,
-        )
-        Screen.Appearance -> AppearanceScreen(
-            state = state.value.appearance,
-            onChange = { state.value = state.value.copy(appearance = it) },
-            onBack = ::navigateBack,
-        )
-        Screen.QuickSettings -> QuickSettingsScreen(
-            onCommand = { DashBridge.send(context, it) {} },
-            onBack = ::navigateBack,
-        )
-        Screen.Music -> MusicScreen(onBack = ::navigateBack)
-        Screen.Capture -> CaptureScreen(
-            onScreenshot = { DashBridge.send(context, "ACTION game.screenshot") {} },
-            onToggleRecording = { DashBridge.send(context, "ACTION game.record.screen") {} },
-            onBack = ::navigateBack,
-        )
-        Screen.Crosshair -> CrosshairScreen(onBack = ::navigateBack)
     }
 }
 

@@ -40,6 +40,8 @@ data class GameSpaceUiState(
     val bypassSupported: Boolean = false,
     val games: List<GameItem> = emptyList(),
     val appearance: AppearanceState = AppearanceState(),
+    val gamepadConnected: Boolean = false,
+    val gamepadPromptShown: Boolean = false,
     val widgets: List<WidgetItem> = widgetsFor(emptySet()),
 ) {
     companion object {

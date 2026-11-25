@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
@@ -31,6 +33,7 @@ import com.nrsqxw.dashgamespace.compose.ui.WidgetState
 fun WidgetsScreen(
     state: GameSpaceUiState,
     onWidgetClick: (WidgetItem) -> Unit,
+    onMove: (Int, Int) -> Unit,
     onBack: () -> Unit,
 ) {
     Scaffold(
@@ -58,15 +61,24 @@ fun WidgetsScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(state.widgets) { widget ->
-                WidgetCard(widget = widget, onClick = { onWidgetClick(widget) })
+            itemsIndexed(state.widgets) { index, widget ->
+                WidgetCard(
+                    widget = widget,
+                    onClick = { onWidgetClick(widget) },
+                    onMove = { delta -> onMove(index, (index + delta).coerceIn(0, state.widgets.lastIndex)) },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun WidgetCard(widget: WidgetItem, onClick: () -> Unit) {
+private fun WidgetCard(
+    widget: WidgetItem,
+    onClick: () -> Unit,
+    onMove: (Int) -> Unit,
+) {
+    val dragY = remember { mutableFloatStateOf(0f) }
     val accent = when (widget.state) {
         WidgetState.Active -> MaterialTheme.colorScheme.primary
         WidgetState.PermissionRequired -> MaterialTheme.colorScheme.error
@@ -78,6 +90,16 @@ private fun WidgetCard(widget: WidgetItem, onClick: () -> Unit) {
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { _, dragAmount -> dragY.floatValue += dragAmount.y },
+                    onDragEnd = {
+                        val steps = (dragY.floatValue / 130f).toInt()
+                        dragY.floatValue = 0f
+                        if (steps != 0) onMove(steps)
+                    },
+                )
+            }
             .padding(16.dp),
     ) {
         Icon(
