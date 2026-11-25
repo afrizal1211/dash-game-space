@@ -14,6 +14,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.hardware.input.InputManager
 import android.view.InputDevice
 import android.graphics.Bitmap
 import android.graphics.Canvas
