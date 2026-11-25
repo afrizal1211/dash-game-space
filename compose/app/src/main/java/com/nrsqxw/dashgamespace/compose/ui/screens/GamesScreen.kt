@@ -1,5 +1,6 @@
 package com.nrsqxw.dashgamespace.compose.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -65,12 +66,22 @@ fun GamesScreen(
                         .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.Outlined.Apps,
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
+                    if (game.icon != null) {
+                        Image(
+                            bitmap = game.icon,
+                            contentDescription = game.label,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.Apps,
+                            contentDescription = null,
+                            modifier = Modifier.size(36.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(game.label, style = MaterialTheme.typography.titleMedium)
                         Text(game.packageName, style = MaterialTheme.typography.bodyMedium)

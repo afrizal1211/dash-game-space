@@ -4,10 +4,13 @@ enum class SpaceMode { Explore, Handheld, Gamepad }
 
 enum class PerformanceMode { Powersave, Balanced, Performance }
 
+import androidx.compose.ui.graphics.ImageBitmap
+
 data class GameItem(
     val packageName: String,
     val label: String,
     val profile: String = "Balanced",
+    val icon: ImageBitmap? = null,
 )
 
 data class WidgetItem(

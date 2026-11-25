@@ -5,6 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import com.nrsqxw.dashgamespace.compose.DashBridge
 import com.nrsqxw.dashgamespace.compose.ui.screens.GamesScreen
 import com.nrsqxw.dashgamespace.compose.ui.screens.HomeScreen
@@ -57,6 +63,10 @@ fun GameSpaceApp() {
                     if (pkg.isEmpty() || (system && !launchable)) null else GameItem(
                         packageName = pkg,
                         label = item.optString("label", pkg),
+                        icon = runCatching {
+                            val info = context.packageManager.getApplicationInfo(pkg, 0)
+                            context.packageManager.getApplicationIcon(info).toImageBitmap()
+                        }.getOrNull(),
                     )
                 }
             }.getOrDefault(emptyList())
@@ -114,4 +124,15 @@ fun GameSpaceApp() {
             onBack = ::navigateBack,
         )
     }
+}
+
+private fun Drawable.toImageBitmap(): ImageBitmap? {
+    if (this is BitmapDrawable) return bitmap.asImageBitmap()
+    val width = intrinsicWidth.coerceAtLeast(1)
+    val height = intrinsicHeight.coerceAtLeast(1)
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    setBounds(0, 0, width, height)
+    draw(canvas)
+    return bitmap.asImageBitmap()
 }
